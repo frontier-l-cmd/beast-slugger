@@ -2,23 +2,483 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Beast Slugger — FRONTIER LAB.</title>
 <style>
-  html,body{margin:0;height:100%;background:#0E1519;color:#EEF4F1;
+  html,body{margin:0;padding:0;height:100%;background:#0E1519;overflow:hidden;
+    -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;
     font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;}
-  .center{height:100%;display:flex;flex-direction:column;align-items:center;
-    justify-content:center;text-align:center;padding:20px;}
-  .lab{letter-spacing:.28em;font-size:13px;color:#F2B33D;}
-  .title{font-size:28px;font-weight:700;margin-top:10px;letter-spacing:.02em;}
-  .note{font-size:14px;color:#8AA0A6;margin-top:8px;}
+  #game{display:block;width:100vw;height:100vh;touch-action:none;}
 </style>
 </head>
 <body>
-  <div class="center">
-    <div class="lab">FRONTIER LAB.</div>
-    <div class="title">Beast Slugger</div>
-    <div class="note">準備中 — Phase 0 baseline</div>
-  </div>
+<canvas id="game"></canvas>
+<script>
+"use strict";
+
+/* ===== 調整用の数値（ここだけ触れば手応えが変わる）===== */
+const PITCH_TRAVEL_MS   = 1100; // 球が来てから到達するまでの時間(ms)。小さいほど速い＝難しい
+const JUST_WINDOW_MS    = 45;   // 「ジャスト」と判定するズレの幅(ms)。大きいほど甘い
+const NEAR_WINDOW_MS    = 140;  // 「ニアピン」と判定するズレの幅(ms)。これを超えると大外し
+const PITCH_INTERVAL_MS = 900;  // 1球終わってから次の球までの間隔(ms)
+/* ===================================================== */
+
+/* パネル配置（角度°・距離0〜1・種類）。Phase 2 で「着弾点→どのパネルか」の判定に再利用する。 */
+const PANELS = [
+  { type: 'ihit',   angle: -22, dist: 0.43 },
+  { type: 'ihit',   angle:  22, dist: 0.43 },
+  { type: 'single', angle: -38, dist: 0.63 },
+  { type: 'single', angle: -15, dist: 0.68 },
+  { type: 'single', angle:   0, dist: 0.61 },
+  { type: 'single', angle:  15, dist: 0.68 },
+  { type: 'single', angle:  38, dist: 0.63 },
+  { type: 'double', angle: -28, dist: 0.84 },
+  { type: 'double', angle:   0, dist: 0.81 },
+  { type: 'double', angle:  28, dist: 0.84 },
+  { type: 'triple', angle: -40, dist: 0.94 },
+  { type: 'triple', angle:  40, dist: 0.94 },
+  { type: 'hr',     angle:   0, dist: 0.96 },
+];
+
+/* パネル種類の表示名と色 */
+const PANEL_STYLE = {
+  ihit:   { label: '内野安打', color: '#A6E06A' },
+  single: { label: '一塁打',   color: '#F2B33D' },
+  double: { label: '二塁打',   color: '#3FB7C6' },
+  triple: { label: '三塁打',   color: '#9B7BEA' },
+  hr:     { label: '本塁打',   color: '#FF5C77' },
+};
+
+/* 配色 */
+const C = {
+  bg:'#0E1519', grassA:'#24705C', grassB:'#1E5E4E', dirt:'#C07A43',
+  line:'#EAF2EE', text:'#EEF4F1', accent:'#F2B33D', sub:'#8AA0A6',
+  just:'#A6E06A', near:'#3FB7C6', miss:'#FF5C77', taken:'#8AA0A6',
+  ball:'#F4F7F5', zone:'#9FB7BD'
+};
+
+/* 見逃しの締め切り：理想の瞬間からこの時間を過ぎても離さなければ「見逃し」(ms) */
+const TAKEN_AFTER_MS = NEAR_WINDOW_MS + 240;
+
+/* ---------- セットアップ ---------- */
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+
+let W = 0, H = 0;                 // 描画サイズ(CSSピクセル)
+let cx = 0, apexY = 0, R = 0;    // ホーム中心X・ホームY(扇の頂点)・扇の半径
+let home = { x:0, y:0 };
+let zoneCX = 0, zoneCY = 0, zoneW = 0, zoneH = 0; // ストライクゾーン枠
+let batterY = 0;
+let cursor = null;               // 照準カーソル {x,y}
+
+function resize(){
+  W = window.innerWidth; H = window.innerHeight;
+  const dpr = Math.min(window.devicePixelRatio || 1, 3);
+  canvas.width  = Math.round(W * dpr);
+  canvas.height = Math.round(H * dpr);
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  computeLayout();
+}
+
+function computeLayout(){
+  cx = W / 2;
+  apexY = H * 0.62;                 // ホームベース＝扇の頂点
+  home = { x: cx, y: apexY };
+  const topMargin  = H * 0.05;
+  const sideMargin = W * 0.06;
+  const vertRoom  = apexY - topMargin;
+  const horizRoom = (W / 2 - sideMargin) / Math.sin(Math.PI / 4); // ±45°が画面幅に収まる半径
+  R = Math.max(60, Math.min(vertRoom, horizRoom));
+  zoneW = R * 0.34; zoneH = R * 0.42;
+  zoneCX = cx; zoneCY = apexY - R * 0.05;   // ゾーン枠はホームのすぐ手前に浮かべる
+  batterY = apexY + (H - apexY) * 0.46;     // バッターは扇の頂点の下（手前）
+  if(!cursor) cursor = { x: zoneCX, y: zoneCY };
+  else { cursor.x = clampCurX(cursor.x); cursor.y = clampCurY(cursor.y); }
+}
+
+/* ---------- 小道具 ---------- */
+const clamp = (v,a,b)=> v<a?a : v>b?b : v;
+const lerp  = (a,b,t)=> a + (b-a)*t;
+const easeOut = t => 1 - Math.pow(1-t, 3);
+const clampCurX = x => clamp(x, zoneCX - zoneW*1.9, zoneCX + zoneW*1.9);
+const clampCurY = y => clamp(y, zoneCY - zoneH*1.9, zoneCY + zoneH*1.6);
+
+/* (角度°, 距離0〜1) → 画面座標。角度0=真上、左がマイナス。解像度非依存。 */
+function polar(angleDeg, dist){
+  const a = angleDeg * Math.PI/180;
+  return { x: home.x + Math.sin(a) * dist * R,
+           y: home.y - Math.cos(a) * dist * R };
+}
+/* (角度°) を canvas の弧の角度に変換 */
+function arcAngle(angleDeg){
+  const a = angleDeg * Math.PI/180;
+  return Math.atan2(-Math.cos(a), Math.sin(a));
+}
+
+/* ---------- ゲーム状態 ---------- */
+const PITCHER_DIST = 0.52;       // ピッチャー（球の出どころ）の奥行き
+let state = 'pre';               // 'pre' | 'incoming' | 'resolved'
+let pitchStart = 0;              // 今の球が始まった時刻(performance.now)
+let nextPitchAt = 0;             // 次の球を投げる時刻
+let resolveAt = 0;               // 結果が出た時刻
+let ballStart = {x:0,y:0};       // 球の出発点
+let ballTarget = {x:0,y:0};      // 球の到達点（コースは毎回散らばる）
+let ball = {x:0,y:0,r:0};        // 球の現在位置
+let swung = false;               // この球で既に振ったか
+let pitchCount = 0;
+let result = null;               // {kind, delta, dir} kind: just|near|miss|taken
+let swingAnimStart = -1e9;       // バットを振った時刻（演出用）
+
+let now = 0;
+
+function startPitch(t){
+  pitchCount++;
+  state = 'incoming';
+  pitchStart = t;
+  swung = false;
+  ballStart = polar(0, PITCHER_DIST);
+  // コース散らばり：ゾーン中心からズレる（内外どちらにも来る）
+  const sx = (Math.random()*2 - 1) * zoneW * 0.62;
+  const sy = (Math.random()*2 - 1) * zoneH * 0.62;
+  ballTarget = { x: zoneCX + sx, y: zoneCY + sy };
+  ball = { x: ballStart.x, y: ballStart.y, r: R*0.012 };
+}
+
+function resolve(t, res){
+  state = 'resolved';
+  resolveAt = t;
+  result = res;
+  nextPitchAt = t + PITCH_INTERVAL_MS;
+}
+
+/* 離す＝スイング。タイミングのズレ(ms)で3段階判定 */
+function judgeSwing(t){
+  const delta = (t - pitchStart) - PITCH_TRAVEL_MS; // <0:早い  >0:遅い
+  const ad = Math.abs(delta);
+  let kind, dir = delta < 0 ? 'early' : 'late';
+  if(ad <= JUST_WINDOW_MS){ kind = 'just'; dir = null; }
+  else if(ad <= NEAR_WINDOW_MS){ kind = 'near'; }
+  else { kind = 'miss'; }
+  swung = true;
+  swingAnimStart = t;
+  resolve(t, { kind, delta, dir });
+}
+
+/* ---------- 入力（タッチ／マウス共通：相対モード）---------- */
+let dragging = false, lastX = 0, lastY = 0;
+
+function pointFrom(e){ return { x: e.clientX, y: e.clientY }; }
+
+function onDown(e){
+  e.preventDefault();
+  const p = pointFrom(e);
+  dragging = true; lastX = p.x; lastY = p.y;
+  try { canvas.setPointerCapture(e.pointerId); } catch(_){}
+}
+function onMove(e){
+  if(!dragging) return;
+  e.preventDefault();
+  const p = pointFrom(e);
+  // 動かした「ぶん」だけカーソルを動かす（指の位置にワープしない）
+  cursor.x = clampCurX(cursor.x + (p.x - lastX));
+  cursor.y = clampCurY(cursor.y + (p.y - lastY));
+  lastX = p.x; lastY = p.y;
+}
+function onUp(e){
+  if(!dragging) return;
+  e.preventDefault();
+  dragging = false;
+  if(state === 'incoming' && !swung) judgeSwing(performance.now());
+}
+function onCancel(){ dragging = false; }
+
+canvas.addEventListener('pointerdown', onDown, { passive:false });
+window.addEventListener('pointermove', onMove, { passive:false });
+window.addEventListener('pointerup',   onUp,   { passive:false });
+window.addEventListener('pointercancel', onCancel, { passive:false });
+
+/* ---------- 更新 ---------- */
+function update(t){
+  if(state === 'pre'){
+    if(t >= nextPitchAt) startPitch(t);
+  } else if(state === 'incoming'){
+    const p = (t - pitchStart) / PITCH_TRAVEL_MS;       // p=1 が「理想の瞬間」
+    const pd = clamp(p, 0, 1.3);
+    ball.x = lerp(ballStart.x, ballTarget.x, pd);
+    ball.y = lerp(ballStart.y, ballTarget.y, pd);
+    ball.r = lerp(R*0.012, R*0.034, clamp(p,0,1));
+    if(t - pitchStart > PITCH_TRAVEL_MS + TAKEN_AFTER_MS){
+      resolve(t, { kind:'taken', delta:null, dir:null });   // 振らず通過＝見逃し
+    }
+  } else if(state === 'resolved'){
+    if(t >= nextPitchAt) startPitch(t);
+  }
+}
+
+/* ---------- 描画 ---------- */
+function drawField(){
+  ctx.fillStyle = C.bg;
+  ctx.fillRect(0,0,W,H);
+
+  // 芝（扇形）
+  const g = ctx.createRadialGradient(home.x, home.y, R*0.1, home.x, home.y, R);
+  g.addColorStop(0, C.grassA);
+  g.addColorStop(1, C.grassB);
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.moveTo(home.x, home.y);
+  const L = polar(-45,1);
+  ctx.lineTo(L.x, L.y);
+  ctx.arc(home.x, home.y, R, arcAngle(-45), arcAngle(45), false);
+  ctx.closePath();
+  ctx.fill();
+
+  // 内野の土（ホーム近くの小さい扇）
+  ctx.fillStyle = C.dirt;
+  ctx.beginPath();
+  ctx.moveTo(home.x, home.y);
+  const dL = polar(-45,0.30);
+  ctx.lineTo(dL.x, dL.y);
+  ctx.arc(home.x, home.y, R*0.30, arcAngle(-45), arcAngle(45), false);
+  ctx.closePath();
+  ctx.fill();
+
+  // フェンスの弧
+  ctx.strokeStyle = 'rgba(234,242,238,0.55)';
+  ctx.lineWidth = Math.max(2, R*0.012);
+  ctx.beginPath();
+  ctx.arc(home.x, home.y, R, arcAngle(-45), arcAngle(45), false);
+  ctx.stroke();
+
+  // ファウルライン（チョーク）
+  ctx.strokeStyle = C.line;
+  ctx.lineWidth = Math.max(2, R*0.010);
+  ctx.beginPath();
+  const fL = polar(-45,1), fR = polar(45,1);
+  ctx.moveTo(home.x, home.y); ctx.lineTo(fL.x, fL.y);
+  ctx.moveTo(home.x, home.y); ctx.lineTo(fR.x, fR.y);
+  ctx.stroke();
+
+  // 内野のダイヤモンド（ライン＋ベース）
+  const first = polar(45,0.13), second = polar(0,0.13*1.414), third = polar(-45,0.13);
+  ctx.strokeStyle = 'rgba(234,242,238,0.85)';
+  ctx.lineWidth = Math.max(1.5, R*0.008);
+  ctx.beginPath();
+  ctx.moveTo(home.x, home.y);
+  ctx.lineTo(first.x, first.y); ctx.lineTo(second.x, second.y);
+  ctx.lineTo(third.x, third.y); ctx.closePath();
+  ctx.stroke();
+  const bs = Math.max(3, R*0.018);
+  ctx.fillStyle = C.line;
+  [home, first, second, third].forEach(b=>{
+    ctx.save(); ctx.translate(b.x,b.y); ctx.rotate(Math.PI/4);
+    ctx.fillRect(-bs/2,-bs/2,bs,bs); ctx.restore();
+  });
+}
+
+function drawPanels(){
+  const fs = Math.max(9, R*0.052);
+  ctx.font = '600 ' + fs + 'px system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  PANELS.forEach(p=>{
+    const st = PANEL_STYLE[p.type];
+    const pos = polar(p.angle, p.dist);
+    const label = st.label;
+    const tw = ctx.measureText(label).width;
+    const padX = fs*0.5, h = fs*1.55, w = tw + padX*2, rr = h*0.34;
+    const x = pos.x - w/2, y = pos.y - h/2;
+    // チップ
+    ctx.fillStyle = st.color;
+    ctx.globalAlpha = 0.92;
+    roundRect(x,y,w,h,rr); ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = 'rgba(14,21,25,0.55)';
+    ctx.lineWidth = Math.max(1, R*0.004);
+    roundRect(x,y,w,h,rr); ctx.stroke();
+    // ラベル
+    ctx.fillStyle = '#0E1519';
+    ctx.fillText(label, pos.x, pos.y + fs*0.04);
+  });
+}
+
+function drawPitcher(){
+  const pos = polar(0, PITCHER_DIST);
+  // マウンド
+  ctx.fillStyle = 'rgba(192,122,67,0.85)';
+  ctx.beginPath();
+  ctx.ellipse(pos.x, pos.y + R*0.02, R*0.075, R*0.04, 0, 0, Math.PI*2);
+  ctx.fill();
+  // 仮図形（丸＋四角）
+  const s = R*0.05;
+  ctx.fillStyle = '#33454C';
+  roundRect(pos.x - s*0.7, pos.y - s*0.6, s*1.4, s*1.8, s*0.4); ctx.fill();
+  ctx.beginPath();
+  ctx.arc(pos.x, pos.y - s*0.95, s*0.62, 0, Math.PI*2);
+  ctx.fill();
+}
+
+function drawZone(){
+  const x = zoneCX - zoneW/2, y = zoneCY - zoneH/2;
+  ctx.fillStyle = 'rgba(159,183,189,0.08)';
+  roundRect(x, y, zoneW, zoneH, zoneW*0.08); ctx.fill();
+  ctx.strokeStyle = 'rgba(159,183,189,0.85)';
+  ctx.lineWidth = Math.max(1.5, R*0.009);
+  roundRect(x, y, zoneW, zoneH, zoneW*0.08); ctx.stroke();
+  // 3x3 の薄い格子
+  ctx.strokeStyle = 'rgba(159,183,189,0.30)';
+  ctx.lineWidth = 1;
+  for(let i=1;i<3;i++){
+    ctx.beginPath(); ctx.moveTo(x + zoneW*i/3, y); ctx.lineTo(x + zoneW*i/3, y+zoneH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x, y + zoneH*i/3); ctx.lineTo(x+zoneW, y + zoneH*i/3); ctx.stroke();
+  }
+}
+
+function drawBall(){
+  let alpha = 1;
+  if(state === 'resolved') alpha = clamp(1 - (now - resolveAt)/350, 0, 1);
+  if(state === 'pre' || alpha <= 0) return;
+  ctx.globalAlpha = alpha;
+  // 影
+  ctx.fillStyle = 'rgba(0,0,0,0.28)';
+  ctx.beginPath();
+  ctx.ellipse(ball.x, ball.y + ball.r*0.9, ball.r*1.05, ball.r*0.5, 0, 0, Math.PI*2);
+  ctx.fill();
+  // 球
+  const bg = ctx.createRadialGradient(ball.x - ball.r*0.3, ball.y - ball.r*0.3, ball.r*0.2, ball.x, ball.y, ball.r);
+  bg.addColorStop(0, '#FFFFFF');
+  bg.addColorStop(1, '#C9D3D0');
+  ctx.fillStyle = bg;
+  ctx.beginPath();
+  ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,92,119,0.7)';
+  ctx.lineWidth = Math.max(1, ball.r*0.12);
+  ctx.beginPath();
+  ctx.arc(ball.x - ball.r*0.35, ball.y, ball.r*0.8, -0.7, 0.7);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+}
+
+function drawCursor(){
+  const s = R*0.085;
+  ctx.strokeStyle = dragging ? C.accent : 'rgba(242,179,61,0.8)';
+  ctx.lineWidth = Math.max(2, R*0.011);
+  ctx.beginPath();
+  ctx.moveTo(cursor.x - s, cursor.y); ctx.lineTo(cursor.x - s*0.32, cursor.y);
+  ctx.moveTo(cursor.x + s*0.32, cursor.y); ctx.lineTo(cursor.x + s, cursor.y);
+  ctx.moveTo(cursor.x, cursor.y - s); ctx.lineTo(cursor.x, cursor.y - s*0.32);
+  ctx.moveTo(cursor.x, cursor.y + s*0.32); ctx.lineTo(cursor.x, cursor.y + s);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cursor.x, cursor.y, s*0.30, 0, Math.PI*2);
+  ctx.stroke();
+}
+
+function drawBatter(){
+  const x = cx - R*0.05, y = batterY;
+  const s = R*0.16;
+  // 体（仮図形）
+  ctx.fillStyle = '#2C3D44';
+  roundRect(x - s*0.55, y - s*0.4, s*1.1, s*1.7, s*0.45); ctx.fill();
+  // 頭
+  ctx.fillStyle = '#34474E';
+  ctx.beginPath(); ctx.arc(x, y - s*0.75, s*0.5, 0, Math.PI*2); ctx.fill();
+  // バット（振り演出）
+  const prog = clamp((now - swingAnimStart)/220, 0, 1);
+  const swinging = prog < 1;
+  const ang = swinging ? lerp(-0.5, 2.0, easeOut(prog)) : -0.5; // 待機:後ろ → 振り抜き
+  const hx = x + s*0.45, hy = y - s*0.1;
+  ctx.save();
+  ctx.translate(hx, hy);
+  ctx.rotate(ang);
+  ctx.strokeStyle = swinging ? C.accent : '#9DB0A8';
+  ctx.lineWidth = Math.max(3, s*0.16);
+  ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(s*1.25, 0); ctx.stroke();
+  ctx.restore();
+}
+
+function drawHUD(){
+  // 中央：判定の大きな文字（このフェーズ限定のデバッグ表示。Phase 2 で打球結果に置き換わる）
+  if(state === 'resolved' && result){
+    const map = {
+      just:  { txt:'ジャスト！', col:C.just },
+      near:  { txt:'ニアピン',   col:C.near },
+      miss:  { txt:'大外し',     col:C.miss },
+      taken: { txt:'見逃し',     col:C.taken },
+    };
+    const m = map[result.kind];
+    const pop = easeOut(clamp((now - resolveAt)/160, 0, 1));
+    const big = (H*0.062) * (0.7 + 0.3*pop);
+    ctx.save();
+    ctx.globalAlpha = 0.45 + 0.55*pop;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = m.col;
+    ctx.font = '800 ' + big + 'px system-ui, sans-serif';
+    ctx.fillText(m.txt, cx, H*0.30);
+    // 早い／遅い（補助）
+    if(result.dir){
+      ctx.fillStyle = C.text;
+      ctx.font = '600 ' + (H*0.028) + 'px system-ui, sans-serif';
+      ctx.fillText(result.dir === 'early' ? '早い' : '遅い', cx, H*0.30 + big*0.78);
+    }
+    ctx.restore();
+  }
+
+  // 左上：デバッグ表示
+  const fs = Math.max(11, H*0.016);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.font = '500 ' + fs + 'px ui-monospace, monospace';
+  ctx.fillStyle = C.sub;
+  const lines = [
+    'Beast Slugger — Phase 1 (timing test)',
+    'pitch #' + pitchCount + '   state:' + state,
+    'last Δ: ' + (result && result.delta!=null ? (result.delta>0?'+':'') + Math.round(result.delta) + 'ms' : '—'),
+    'TRAVEL=' + PITCH_TRAVEL_MS + '  JUST=' + JUST_WINDOW_MS + '  NEAR=' + NEAR_WINDOW_MS,
+  ];
+  lines.forEach((ln,i)=> ctx.fillText(ln, W*0.035, H*0.03 + i*fs*1.45));
+
+  // 下：操作ヒント（薄く）
+  ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+  ctx.fillStyle = 'rgba(138,160,166,0.7)';
+  ctx.font = '500 ' + Math.max(11, H*0.017) + 'px system-ui, sans-serif';
+  ctx.fillText('画面を押してドラッグ → いいタイミングで離す＝スイング', cx, H*0.975);
+}
+
+function roundRect(x,y,w,h,r){
+  r = Math.min(r, w/2, h/2);
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+}
+
+/* ---------- メインループ ---------- */
+function frame(t){
+  now = t;
+  update(t);
+  drawField();
+  drawPanels();
+  drawPitcher();
+  drawZone();
+  drawBall();
+  drawCursor();
+  drawBatter();
+  drawHUD();
+  requestAnimationFrame(frame);
+}
+
+window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', resize);
+resize();
+nextPitchAt = performance.now() + 700;   // 最初の球まで少し待つ
+requestAnimationFrame(frame);
+</script>
 </body>
 </html>
