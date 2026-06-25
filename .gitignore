@@ -1,0 +1,17 @@
+# OS files
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Editor / tooling
+*.swp
+.idea/
+.vscode/
+
+# Environment / secrets (future use)
+.env
+.env.*
+!.env.example
