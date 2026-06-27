@@ -1,0 +1,57 @@
+<!-- wp:template-part {"slug":"header","tagName":"header"} /-->
+
+<!-- wp:group {"tagName":"main","layout":{"type":"constrained"}} -->
+<main class="wp-block-group"><!-- wp:group {"className":"fl-hero","layout":{"type":"constrained"}} -->
+<div class="wp-block-group fl-hero"><!-- wp:html -->
+<p class="fl-kicker">A record of judgment</p>
+<p class="fl-stance">作業をこなす人ではなく、<br>実験を設計する人であるために。</p>
+<p class="fl-read">ここは商品ではなく、判断の記録です。能力はあるのに方向を持てずに止まっている——そういう人のために、考えた跡をそのまま置いています。読んで、何かが動いた人だけが、先へ進めばいい。</p>
+<!-- /wp:html --></div>
+<!-- /wp:group -->
+
+<!-- wp:separator {"className":"is-style-wide","backgroundColor":"line"} -->
+<hr class="wp-block-separator has-text-color has-line-color has-alpha-channel-opacity has-line-background-color has-background is-style-wide"/>
+<!-- /wp:separator -->
+
+<!-- wp:group {"className":"fl-index","style":{"spacing":{"margin":{"top":"var:preset|spacing|60","bottom":"var:preset|spacing|60"}}},"layout":{"type":"constrained"}} -->
+<div class="wp-block-group fl-index" style="margin-top:var(--wp--preset--spacing--60);margin-bottom:var(--wp--preset--spacing--60)"><!-- wp:paragraph {"className":"fl-section-label"} -->
+<p class="fl-section-label">Index — 考察 / 実験</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:query {"queryId":1,"query":{"perPage":12,"pages":0,"offset":0,"postType":"post","order":"desc","orderBy":"date","inherit":false},"className":"fl-list"} -->
+<div class="wp-block-query fl-list"><!-- wp:post-template -->
+<!-- wp:group {"className":"fl-row-meta","layout":{"type":"flex","flexWrap":"nowrap"}} -->
+<div class="wp-block-group fl-row-meta"><!-- wp:post-date {"format":"Y.m.d"} /-->
+
+<!-- wp:post-terms {"term":"category"} /--></div>
+<!-- /wp:group -->
+
+<!-- wp:post-title {"isLink":true} /-->
+
+<!-- wp:post-excerpt {"showMoreOnNewLine":false} /-->
+<!-- /wp:post-template -->
+
+<!-- wp:query-no-results -->
+<!-- wp:paragraph -->
+<p>まだ記録はありません。</p>
+<!-- /wp:paragraph -->
+<!-- /wp:query-no-results --></div>
+<!-- /wp:query --></div>
+<!-- /wp:group -->
+
+<!-- wp:separator {"className":"is-style-wide","backgroundColor":"line"} -->
+<hr class="wp-block-separator has-text-color has-line-color has-alpha-channel-opacity has-line-background-color has-background is-style-wide"/>
+<!-- /wp:separator -->
+
+<!-- wp:group {"className":"fl-about","style":{"spacing":{"margin":{"top":"var:preset|spacing|60"}}},"layout":{"type":"constrained"}} -->
+<div class="wp-block-group fl-about" style="margin-top:var(--wp--preset--spacing--60)"><!-- wp:paragraph {"className":"fl-section-label"} -->
+<p class="fl-section-label">About / Stance</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"className":"fl-lead"} -->
+<p class="fl-lead">能力を増やす場所ではなく、方向を確かめる場所です。実績やフォロワー数で語るつもりはありません。読んで判断が一段進むなら、それで足ります。</p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:group --></main>
+<!-- /wp:group -->
+
+<!-- wp:template-part {"slug":"footer","tagName":"footer"} /-->

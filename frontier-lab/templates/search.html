@@ -1,0 +1,31 @@
+<!-- wp:template-part {"slug":"header","tagName":"header"} /-->
+
+<!-- wp:group {"tagName":"main","style":{"spacing":{"margin":{"top":"var:preset|spacing|60","bottom":"var:preset|spacing|60"}}},"layout":{"type":"constrained"}} -->
+<main class="wp-block-group" style="margin-top:var(--wp--preset--spacing--60);margin-bottom:var(--wp--preset--spacing--60)"><!-- wp:paragraph {"className":"fl-section-label"} -->
+<p class="fl-section-label">Search</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:query-title {"type":"search","level":1,"style":{"typography":{"fontFamily":"var:preset|font-family|serif-jp"},"spacing":{"margin":{"bottom":"var:preset|spacing|40"}}}} /-->
+
+<!-- wp:query {"queryId":5,"query":{"perPage":12,"pages":0,"offset":0,"postType":"post","order":"desc","orderBy":"date","inherit":true},"className":"fl-list"} -->
+<div class="wp-block-query fl-list"><!-- wp:post-template -->
+<!-- wp:group {"className":"fl-row-meta","layout":{"type":"flex","flexWrap":"nowrap"}} -->
+<div class="wp-block-group fl-row-meta"><!-- wp:post-date {"format":"Y.m.d"} /-->
+
+<!-- wp:post-terms {"term":"category"} /--></div>
+<!-- /wp:group -->
+
+<!-- wp:post-title {"isLink":true} /-->
+
+<!-- wp:post-excerpt {"showMoreOnNewLine":false} /-->
+<!-- /wp:post-template -->
+
+<!-- wp:query-no-results -->
+<!-- wp:paragraph -->
+<p>該当する記録は見つかりませんでした。</p>
+<!-- /wp:paragraph -->
+<!-- /wp:query-no-results --></div>
+<!-- /wp:query --></main>
+<!-- /wp:group -->
+
+<!-- wp:template-part {"slug":"footer","tagName":"footer"} /-->

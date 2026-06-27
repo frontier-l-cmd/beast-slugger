@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="FRONTIER LAB. — a record of judgment">
+  <!-- 仕様書 §7：白地＋記事タイトルの抑えた定型カード。顔・大コピー・煽りサムネなし。 -->
+  <rect width="1200" height="630" fill="#FFFFFF"/>
+  <rect x="0.5" y="0.5" width="1199" height="629" fill="none" stroke="#E3E7EF" stroke-width="1"/>
+  <!-- ブランド -->
+  <circle cx="84" cy="86" r="6" fill="#243B66"/>
+  <text x="102" y="93" font-family="Newsreader, 'Times New Roman', serif" font-size="30" font-weight="500" letter-spacing="0.5" fill="#0B1326">FRONTIER&#160;LAB.</text>
+  <!-- 区切り罫 -->
+  <line x1="84" y1="150" x2="1116" y2="150" stroke="#E3E7EF" stroke-width="1"/>
+  <!-- タイトル（定型コピー） -->
+  <text x="84" y="320" font-family="'Shippori Mincho B1', 'Hiragino Mincho ProN', serif" font-size="60" font-weight="600" fill="#0B1326">作業をこなす人ではなく、</text>
+  <text x="84" y="408" font-family="'Shippori Mincho B1', 'Hiragino Mincho ProN', serif" font-size="60" font-weight="600" fill="#0B1326">実験を設計する人であるために。</text>
+  <!-- 等幅ラベル -->
+  <text x="84" y="560" font-family="'JetBrains Mono', monospace" font-size="22" letter-spacing="4" fill="#5B6780">A RECORD OF JUDGMENT</text>
+</svg>

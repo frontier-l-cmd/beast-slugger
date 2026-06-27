@@ -1,0 +1,313 @@
+/*
+Theme Name: FRONTIER LAB.
+Theme URI: https://frontier-l-cmd.github.io/
+Author: FRONTIER LAB.
+Author URI: https://frontier-l-cmd.github.io/
+Description: 「判断の記録」を読ませるための編集的ブロックテーマ（FSE）。モノクローム（ネイビー一族）／余白主導／装飾は情報のときだけ。色で語らず、型と余白と文字で語る。
+Requires at least: 6.5
+Tested up to: 6.7
+Requires PHP: 7.4
+Version: 1.0.0
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: frontier-lab
+Tags: block-theme, full-site-editing, blog, editorial, one-column, custom-colors
+*/
+
+/* =========================================================
+   FRONTIER LAB. — 補助スタイル
+   theme.json で宣言できないコンポーネント（編集リスト・図版3型・
+   記事末LINE・関連記事）をここで定義する。色・書体・余白は
+   すべて theme.json のプリセット変数を参照し、新しい値を作らない。
+   ========================================================= */
+
+:root {
+	--fl-paper: var(--wp--preset--color--paper);
+	--fl-ink: var(--wp--preset--color--ink);
+	--fl-ink-deep: var(--wp--preset--color--ink-deep);
+	--fl-navy: var(--wp--preset--color--navy);
+	--fl-hover: var(--wp--preset--color--hover);
+	--fl-muted: var(--wp--preset--color--muted);
+	--fl-line: var(--wp--preset--color--line);
+	--fl-serif-jp: var(--wp--preset--font-family--serif-jp);
+	--fl-serif-en: var(--wp--preset--font-family--serif-en);
+	--fl-gothic: var(--wp--preset--font-family--gothic);
+	--fl-mono: var(--wp--preset--font-family--mono);
+	--fl-measure: 680px;
+}
+
+html { scroll-behavior: smooth; }
+body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; text-align: left; }
+::selection { background: rgba(36, 59, 102, .14); }
+
+/* 等幅ラベル共通 */
+.fl-mono {
+	font-family: var(--fl-mono);
+	letter-spacing: .12em;
+	text-transform: uppercase;
+}
+
+/* ---------- ヘッダー ---------- */
+.fl-header {
+	position: sticky; top: 0; z-index: 20;
+	background: rgba(255, 255, 255, .85);
+	-webkit-backdrop-filter: saturate(140%) blur(8px);
+	backdrop-filter: saturate(140%) blur(8px);
+	border-bottom: 1px solid var(--fl-line);
+}
+.fl-brand {
+	font-family: var(--fl-serif-en);
+	font-weight: 500;
+	font-size: 1.2rem;
+	color: var(--fl-ink-deep);
+	display: inline-flex; align-items: center; gap: .55rem;
+}
+.fl-brand .fl-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--fl-navy); display: inline-block; }
+.fl-nav a {
+	font-family: var(--fl-mono);
+	font-size: .74rem;
+	letter-spacing: .04em;
+	color: var(--fl-ink);
+	padding: 6px 0;
+	position: relative;
+}
+.fl-nav a::after {
+	content: ""; position: absolute; left: 0; right: 100%; bottom: 0;
+	height: 1px; background: var(--fl-hover); transition: right .28s;
+}
+.fl-nav a:hover::after { right: 0; }
+
+/* ---------- ヒーロー（言葉のみ・画像なし） ---------- */
+.fl-hero { padding: clamp(56px, 9vw, 96px) 0 clamp(40px, 7vw, 72px); }
+.fl-hero .fl-kicker {
+	font-family: var(--fl-mono); font-size: .72rem; letter-spacing: .16em;
+	text-transform: uppercase; color: var(--fl-muted); margin: 0 0 22px;
+}
+.fl-hero .fl-stance {
+	font-family: var(--fl-serif-jp); font-weight: 600;
+	font-size: clamp(1.5rem, 3.4vw, 2.2rem); line-height: 1.7;
+	color: var(--fl-ink-deep); margin: 0 0 24px; max-width: var(--fl-measure);
+}
+.fl-hero .fl-read {
+	font-family: var(--fl-serif-jp); font-size: 1.1rem; line-height: 2.1;
+	color: #28344f; max-width: var(--fl-measure); margin: 0;
+}
+
+/* ---------- 編集リスト（記事一覧・サムネなし） ---------- */
+.fl-list .wp-block-post-template,
+ul.fl-list { list-style: none; margin: 0; padding: 0; }
+.fl-list li { margin: 0; padding: 0; }
+.fl-list .wp-block-post {
+	padding: 26px 0;
+	border-top: 1px solid var(--fl-line);
+}
+.fl-list .wp-block-post:last-child { border-bottom: 1px solid var(--fl-line); }
+.fl-list .fl-row-meta {
+	display: flex; align-items: baseline; gap: 16px; margin: 0 0 10px;
+}
+.fl-list .wp-block-post-date,
+.fl-list time {
+	font-family: var(--fl-mono); font-size: .72rem; letter-spacing: .06em;
+	color: var(--fl-muted);
+}
+.fl-list .wp-block-post-terms a,
+.fl-list .fl-cat {
+	font-family: var(--fl-mono); font-size: .66rem; letter-spacing: .12em;
+	text-transform: uppercase; color: var(--fl-navy);
+	border-bottom: 0;
+}
+.fl-list .wp-block-post-title {
+	font-family: var(--fl-serif-jp); font-weight: 600;
+	font-size: clamp(1.15rem, 2.2vw, 1.35rem); line-height: 1.6;
+	margin: 0 0 8px; color: var(--fl-ink-deep);
+}
+.fl-list .wp-block-post-title a { color: var(--fl-ink-deep); border-bottom: 0; transition: color .2s; }
+.fl-list .wp-block-post-title a:hover { color: var(--fl-navy); }
+.fl-list .wp-block-post-excerpt {
+	margin: 0; color: var(--fl-ink);
+}
+.fl-list .wp-block-post-excerpt__content {
+	font-size: .96rem; line-height: 1.95; margin: 0;
+}
+.fl-list .wp-block-post-excerpt__more-text { display: none; }
+
+/* セクション小見出し（Index / About 等の等幅ラベル） */
+.fl-section-label {
+	font-family: var(--fl-mono); font-size: .72rem; letter-spacing: .14em;
+	text-transform: uppercase; color: var(--fl-muted); margin: 0 0 20px;
+}
+
+/* ---------- 記事本体 ---------- */
+.fl-article .wp-block-post-content { max-width: var(--fl-measure); }
+.fl-lead, .fl-article p.fl-lead {
+	font-family: var(--fl-serif-jp); font-size: 1.18rem; line-height: 2.1;
+	color: #23304e; margin: 0 0 2em;
+}
+.fl-article .wp-block-post-content p { margin: 0 0 1.6em; }
+.fl-article strong { font-weight: 500; color: var(--fl-ink-deep); }
+.fl-article .wp-block-post-content a { color: var(--fl-navy); border-bottom: 1px solid var(--fl-line); }
+.fl-article .wp-block-post-content a:hover { border-color: var(--fl-hover); }
+
+/* リスト（ネイビーの「—」） */
+.fl-article .wp-block-post-content ul:not(.fl-list .wp-block-post-template) {
+	list-style: none; margin: 1.4em 0; padding: 0;
+}
+.fl-article .wp-block-post-content ul li {
+	position: relative; padding-left: 1.4em; margin: 0 0 .8em; line-height: 1.95;
+}
+.fl-article .wp-block-post-content ul li::before {
+	content: "—"; position: absolute; left: 0; color: var(--fl-navy);
+}
+
+/* 記事メタ（カテゴリチップ＋日付） */
+.fl-art-head .fl-cat {
+	font-family: var(--fl-mono); font-size: .66rem; letter-spacing: .14em;
+	color: #fff; background: var(--fl-navy); padding: 3px 9px; border-radius: 3px;
+	display: inline-block;
+}
+.fl-art-head .wp-block-post-terms a { color: #fff; border-bottom: 0; }
+.fl-art-head .wp-block-post-date,
+.fl-art-head time {
+	font-family: var(--fl-mono); font-size: .74rem; letter-spacing: .06em; color: var(--fl-muted);
+}
+.fl-crumb a { font-family: var(--fl-mono); font-size: .72rem; color: var(--fl-muted); border-bottom: 0; }
+.fl-crumb a:hover { color: var(--fl-navy); }
+
+/* =========================================================
+   図版 3型（白地・ネイビー線画・等幅ラベル）
+   色塗り・アイコン・グラデ禁止。図番号＋等幅キャプション必須。
+   ========================================================= */
+.fl-figure { margin: 40px 0; max-width: var(--fl-measure); }
+.fl-figcaption {
+	font-family: var(--fl-mono); font-size: .68rem; letter-spacing: .08em;
+	color: var(--fl-muted); margin-top: 14px;
+}
+.fl-figcaption b { color: var(--fl-navy); font-weight: 500; }
+
+/* 型1：対比図 */
+.fl-contrast { display: grid; grid-template-columns: 1fr 1px 1fr; border: 1px solid var(--fl-line); }
+.fl-contrast .fl-col { padding: 24px 24px 28px; }
+.fl-contrast .fl-div { background: var(--fl-line); }
+.fl-contrast .fl-h {
+	font-family: var(--fl-mono); font-size: .64rem; letter-spacing: .12em;
+	text-transform: uppercase; color: var(--fl-navy); margin-bottom: 16px;
+}
+.fl-contrast .fl-col.b .fl-h { color: var(--fl-muted); }
+.fl-contrast ul { list-style: none; margin: 0; padding: 0; }
+.fl-contrast li {
+	font-family: var(--fl-serif-jp); font-size: .96rem; line-height: 1.65;
+	padding: 8px 0; border-top: 1px dashed var(--fl-line);
+}
+.fl-contrast li::before { content: none; }
+.fl-contrast li:first-child { border-top: 0; }
+
+/* 型2：比較表 */
+.fl-table { width: 100%; border-collapse: collapse; border: 1px solid var(--fl-line); font-size: .94rem; }
+.fl-table caption { caption-side: top; text-align: left; }
+.fl-table th, .fl-table td { text-align: left; padding: 13px 18px; border: 1px solid var(--fl-line); vertical-align: top; line-height: 1.7; }
+.fl-table thead th {
+	font-family: var(--fl-mono); font-size: .64rem; letter-spacing: .1em;
+	text-transform: uppercase; color: var(--fl-navy); font-weight: 500; background: #fff;
+}
+.fl-table tbody th {
+	font-family: var(--fl-serif-jp); font-weight: 500; color: var(--fl-ink-deep);
+	width: 30%;
+}
+.fl-table tbody td { font-family: var(--fl-gothic); color: var(--fl-ink); }
+
+/* 型3：プロセス図（横並びステップ＋ネイビー矢印） */
+.fl-process { display: flex; align-items: stretch; gap: 0; border: 1px solid var(--fl-line); }
+.fl-process .fl-step { flex: 1; padding: 22px 20px; position: relative; }
+.fl-process .fl-step + .fl-step { border-left: 1px solid var(--fl-line); }
+.fl-process .fl-step .fl-n {
+	font-family: var(--fl-mono); font-size: .62rem; letter-spacing: .1em;
+	color: var(--fl-navy); margin-bottom: 10px;
+}
+.fl-process .fl-step .fl-t {
+	font-family: var(--fl-serif-jp); font-size: 1rem; font-weight: 500;
+	color: var(--fl-ink-deep); line-height: 1.6; margin-bottom: 8px;
+}
+.fl-process .fl-step .fl-s { font-size: .86rem; line-height: 1.75; color: var(--fl-ink); }
+.fl-process .fl-step:not(:last-child)::after {
+	content: "→"; position: absolute; right: -10px; top: 50%; transform: translateY(-50%);
+	font-family: var(--fl-mono); color: var(--fl-navy); background: var(--fl-paper);
+	width: 20px; text-align: center; z-index: 2;
+}
+
+/* ---------- 記事末：LINE導線（静か） ---------- */
+.fl-line-entry {
+	max-width: var(--fl-measure); margin: 72px 0 0; padding: 38px 0;
+	border-top: 1px solid var(--fl-line); border-bottom: 1px solid var(--fl-line);
+}
+.fl-line-entry .fl-k {
+	font-family: var(--fl-mono); font-size: .72rem; letter-spacing: .12em;
+	text-transform: uppercase; color: var(--fl-muted); margin-bottom: 14px;
+}
+.fl-line-entry p {
+	font-family: var(--fl-serif-jp); font-size: 1.05rem; line-height: 2;
+	margin: 0 0 22px; color: #28344f;
+}
+.fl-line-entry a.fl-go {
+	display: inline-flex; align-items: center; gap: 10px;
+	font-family: var(--fl-mono); font-size: .78rem; letter-spacing: .08em;
+	text-transform: uppercase; color: var(--fl-ink-deep);
+	border: 1px solid var(--fl-ink-deep); padding: 13px 22px; border-radius: 4px;
+	transition: .22s;
+}
+.fl-line-entry a.fl-go:hover { background: var(--fl-ink-deep); color: #fff; }
+.fl-line-entry a.fl-go .fl-arw { color: var(--fl-navy); }
+.fl-line-entry a.fl-go:hover .fl-arw { color: #9fc0ff; }
+
+/* ---------- 関連記事（テキストのみ） ---------- */
+.fl-related { max-width: var(--fl-measure); margin: 64px 0 0; }
+.fl-related .fl-k {
+	font-family: var(--fl-mono); font-size: .7rem; letter-spacing: .12em;
+	text-transform: uppercase; color: var(--fl-muted); margin-bottom: 22px;
+}
+.fl-related .wp-block-post {
+	display: flex; justify-content: space-between; gap: 20px; align-items: baseline;
+	padding: 16px 0; border-top: 1px solid var(--fl-line);
+}
+.fl-related .wp-block-post:last-child { border-bottom: 1px solid var(--fl-line); }
+.fl-related .wp-block-post-title { margin: 0; }
+.fl-related .wp-block-post-title a {
+	font-family: var(--fl-serif-jp); font-size: 1.02rem; color: var(--fl-ink-deep);
+	border-bottom: 0; transition: color .2s;
+}
+.fl-related .wp-block-post-title a:hover { color: var(--fl-navy); }
+.fl-related .wp-block-post-date {
+	font-family: var(--fl-mono); font-size: .7rem; color: var(--fl-muted); white-space: nowrap;
+}
+
+/* 「Index に戻る」 */
+.fl-back a {
+	font-family: var(--fl-mono); font-size: .74rem; letter-spacing: .1em;
+	text-transform: uppercase; color: var(--fl-navy); border-bottom: 0;
+}
+.fl-back a:hover { border-bottom: 1px solid var(--fl-hover); }
+
+/* ---------- フッター（最小限） ---------- */
+.fl-footer { border-top: 1px solid var(--fl-line); margin-top: clamp(72px, 11vw, 100px); padding: 36px 0; }
+.fl-footer .fl-brand { font-size: 1rem; }
+.fl-footer a { font-family: var(--fl-mono); font-size: .72rem; letter-spacing: .06em; color: var(--fl-muted); border-bottom: 0; }
+.fl-footer a:hover { color: var(--fl-navy); }
+.fl-footer .fl-fine { font-family: var(--fl-mono); font-size: .66rem; color: var(--fl-muted); letter-spacing: .04em; }
+
+/* ---------- フォーカス可視 / モーション配慮 ---------- */
+a:focus-visible, button:focus-visible { outline: 2px solid var(--fl-hover); outline-offset: 3px; border-radius: 2px; }
+
+@media (max-width: 720px) {
+	.fl-nav { display: none; }
+	.fl-contrast { grid-template-columns: 1fr; }
+	.fl-contrast .fl-div { display: none; }
+	.fl-contrast .fl-col + .fl-col { border-top: 1px solid var(--fl-line); }
+	.fl-process { flex-direction: column; }
+	.fl-process .fl-step + .fl-step { border-left: 0; border-top: 1px solid var(--fl-line); }
+	.fl-process .fl-step:not(:last-child)::after { content: "↓"; right: 50%; top: auto; bottom: -10px; transform: translateX(50%); }
+	.fl-table tbody th { width: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html { scroll-behavior: auto; }
+	* { animation: none !important; transition: none !important; }
+}

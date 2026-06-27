@@ -1,0 +1,187 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/theme.json",
+	"version": 3,
+	"settings": {
+		"appearanceTools": true,
+		"layout": {
+			"contentSize": "680px",
+			"wideSize": "1080px"
+		},
+		"useRootPaddingAwareAlignments": true,
+		"color": {
+			"custom": false,
+			"customDuotone": false,
+			"customGradient": false,
+			"defaultDuotone": false,
+			"defaultGradients": false,
+			"defaultPalette": false,
+			"duotone": [],
+			"gradients": [],
+			"palette": [
+				{ "slug": "paper", "color": "#FFFFFF", "name": "背景 / Paper" },
+				{ "slug": "ink", "color": "#16223D", "name": "本文 / Ink" },
+				{ "slug": "ink-deep", "color": "#0B1326", "name": "見出し / Ink Deep" },
+				{ "slug": "navy", "color": "#243B66", "name": "差し色 / Navy" },
+				{ "slug": "hover", "color": "#3A5A96", "name": "ホバー / Hover" },
+				{ "slug": "muted", "color": "#5B6780", "name": "二次情報 / Muted" },
+				{ "slug": "line", "color": "#E3E7EF", "name": "罫 / Line" }
+			]
+		},
+		"typography": {
+			"customFontSize": false,
+			"defaultFontSizes": false,
+			"fluid": true,
+			"lineHeight": true,
+			"writingMode": false,
+			"fontFamilies": [
+				{
+					"slug": "serif-jp",
+					"name": "明朝（見出し・和）",
+					"fontFamily": "\"Shippori Mincho B1\", \"Hiragino Mincho ProN\", serif"
+				},
+				{
+					"slug": "serif-en",
+					"name": "Newsreader（見出し・欧 / ブランド）",
+					"fontFamily": "\"Newsreader\", \"Shippori Mincho B1\", serif"
+				},
+				{
+					"slug": "gothic",
+					"name": "本文ゴシック",
+					"fontFamily": "\"Zen Kaku Gothic New\", \"Hiragino Kaku Gothic ProN\", system-ui, sans-serif"
+				},
+				{
+					"slug": "mono",
+					"name": "等幅（日付・ラベル・図番号）",
+					"fontFamily": "\"JetBrains Mono\", ui-monospace, monospace"
+				}
+			],
+			"fontSizes": [
+				{ "slug": "small", "name": "小（補助）", "size": "0.78rem", "fluid": false },
+				{ "slug": "medium", "name": "本文", "size": "17px", "fluid": { "min": "16px", "max": "17px" } },
+				{ "slug": "large", "name": "リード", "size": "1.18rem", "fluid": false },
+				{ "slug": "x-large", "name": "h2", "size": "1.42rem", "fluid": { "min": "1.3rem", "max": "1.42rem" } },
+				{ "slug": "xx-large", "name": "h1", "size": "2.6rem", "fluid": { "min": "1.8rem", "max": "2.6rem" } }
+			]
+		},
+		"spacing": {
+			"customSpacingSize": true,
+			"units": [ "px", "rem", "em", "%", "vh", "vw" ],
+			"spacingScale": { "steps": 0 },
+			"spacingSizes": [
+				{ "slug": "20", "name": "S — 段落間", "size": "1.6em" },
+				{ "slug": "40", "name": "M — 要素間", "size": "2.4em" },
+				{ "slug": "60", "name": "L — セクション間", "size": "clamp(56px, 8vw, 80px)" },
+				{ "slug": "80", "name": "XL — 大区切り", "size": "clamp(72px, 11vw, 100px)" }
+			]
+		},
+		"border": {
+			"color": true,
+			"radius": true,
+			"style": true,
+			"width": true
+		},
+		"custom": {
+			"measure": "680px"
+		}
+	},
+	"styles": {
+		"color": {
+			"background": "var(--wp--preset--color--paper)",
+			"text": "var(--wp--preset--color--ink)"
+		},
+		"typography": {
+			"fontFamily": "var(--wp--preset--font-family--gothic)",
+			"fontSize": "var(--wp--preset--font-size--medium)",
+			"lineHeight": "2.0",
+			"fontWeight": "400"
+		},
+		"spacing": {
+			"blockGap": "1.6em",
+			"padding": {
+				"left": "28px",
+				"right": "28px"
+			}
+		},
+		"elements": {
+			"link": {
+				"color": { "text": "var(--wp--preset--color--navy)" },
+				"typography": { "textDecoration": "none" },
+				":hover": {
+					"color": { "text": "var(--wp--preset--color--hover)" }
+				}
+			},
+			"heading": {
+				"color": { "text": "var(--wp--preset--color--ink-deep)" },
+				"typography": { "fontWeight": "600", "lineHeight": "1.6" }
+			},
+			"h1": {
+				"typography": {
+					"fontFamily": "var(--wp--preset--font-family--serif-jp)",
+					"fontSize": "var(--wp--preset--font-size--xx-large)",
+					"fontWeight": "600",
+					"lineHeight": "1.55"
+				}
+			},
+			"h2": {
+				"typography": {
+					"fontFamily": "var(--wp--preset--font-family--serif-jp)",
+					"fontSize": "var(--wp--preset--font-size--x-large)",
+					"fontWeight": "600",
+					"lineHeight": "1.6"
+				},
+				"spacing": {
+					"margin": { "top": "2.4em", "bottom": "0.9em" }
+				}
+			},
+			"h3": {
+				"typography": {
+					"fontFamily": "var(--wp--preset--font-family--gothic)",
+					"fontSize": "1.12rem",
+					"fontWeight": "500",
+					"lineHeight": "1.7"
+				},
+				"spacing": {
+					"margin": { "top": "1.8em", "bottom": "0.6em" }
+				}
+			}
+		},
+		"blocks": {
+			"core/post-title": {
+				"typography": {
+					"fontFamily": "var(--wp--preset--font-family--serif-jp)",
+					"fontWeight": "600",
+					"lineHeight": "1.55"
+				},
+				"color": { "text": "var(--wp--preset--color--ink-deep)" }
+			},
+			"core/quote": {
+				"typography": {
+					"fontFamily": "var(--wp--preset--font-family--serif-jp)",
+					"fontSize": "1.1rem",
+					"lineHeight": "2"
+				},
+				"color": { "text": "#28344f" },
+				"border": {
+					"left": { "color": "var(--wp--preset--color--navy)", "width": "2px", "style": "solid" }
+				},
+				"spacing": {
+					"padding": { "left": "24px", "top": "0.2em", "bottom": "0.2em" },
+					"margin": { "top": "2em", "bottom": "2em" }
+				}
+			},
+			"core/separator": {
+				"color": { "text": "var(--wp--preset--color--line)" }
+			},
+			"core/list": {
+				"spacing": { "margin": { "top": "1.4em", "bottom": "1.4em" } }
+			}
+		}
+	},
+	"templateParts": [
+		{ "name": "header", "title": "ヘッダー", "area": "header" },
+		{ "name": "footer", "title": "フッター", "area": "footer" }
+	],
+	"customTemplates": [
+		{ "name": "page-no-title", "title": "ページ（見出しなし）", "postTypes": [ "page" ] }
+	]
+}

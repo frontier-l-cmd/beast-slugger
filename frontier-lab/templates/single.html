@@ -1,0 +1,49 @@
+<!-- wp:template-part {"slug":"header","tagName":"header"} /-->
+
+<!-- wp:group {"tagName":"main","className":"fl-article","style":{"spacing":{"margin":{"top":"var:preset|spacing|60"}}},"layout":{"type":"constrained"}} -->
+<main class="wp-block-group fl-article" style="margin-top:var(--wp--preset--spacing--60)"><!-- wp:group {"className":"fl-crumb","layout":{"type":"constrained"}} -->
+<div class="wp-block-group fl-crumb"><!-- wp:paragraph -->
+<p><a href="/">← Index</a></p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:group -->
+
+<!-- wp:group {"className":"fl-art-head","style":{"spacing":{"margin":{"top":"var:preset|spacing|40"}}},"layout":{"type":"constrained"}} -->
+<div class="wp-block-group fl-art-head" style="margin-top:var(--wp--preset--spacing--40)"><!-- wp:post-terms {"term":"category"} /-->
+
+<!-- wp:post-title {"level":1,"style":{"spacing":{"margin":{"top":"22px","bottom":"16px"}}}} /-->
+
+<!-- wp:post-date {"format":"Y.m.d"} /--></div>
+<!-- /wp:group -->
+
+<!-- wp:post-content {"layout":{"type":"constrained"}} /-->
+
+<!-- wp:group {"className":"fl-line-entry","layout":{"type":"constrained"}} -->
+<div class="wp-block-group fl-line-entry"><!-- wp:html -->
+<div class="fl-k">If something moved</div>
+<p>ここまで読んで、何かが動いたなら。続きは少人数の場所で話しています。売り込みはありません。読んで止まれなかった人だけ、どうぞ。</p>
+<a class="fl-go" href="#">LINEで続きを読む <span class="fl-arw">→</span></a>
+<!-- /wp:html --></div>
+<!-- /wp:group -->
+
+<!-- wp:group {"className":"fl-related","layout":{"type":"constrained"}} -->
+<div class="wp-block-group fl-related"><!-- wp:html -->
+<div class="fl-k">Related</div>
+<!-- /wp:html -->
+
+<!-- wp:query {"queryId":3,"query":{"perPage":3,"pages":0,"offset":0,"postType":"post","order":"desc","orderBy":"date","inherit":false}} -->
+<div class="wp-block-query"><!-- wp:post-template -->
+<!-- wp:post-title {"isLink":true} /-->
+
+<!-- wp:post-date {"format":"Y.m.d"} /-->
+<!-- /wp:post-template --></div>
+<!-- /wp:query --></div>
+<!-- /wp:group -->
+
+<!-- wp:group {"className":"fl-back","style":{"spacing":{"padding":{"bottom":"var:preset|spacing|80"}}},"layout":{"type":"constrained"}} -->
+<div class="wp-block-group fl-back" style="padding-bottom:var(--wp--preset--spacing--80)"><!-- wp:paragraph -->
+<p><a href="/">← Index に戻る</a></p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:group --></main>
+<!-- /wp:group -->
+
+<!-- wp:template-part {"slug":"footer","tagName":"footer"} /-->
