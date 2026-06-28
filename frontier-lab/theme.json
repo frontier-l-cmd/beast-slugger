@@ -92,7 +92,7 @@
 		"typography": {
 			"fontFamily": "var(--wp--preset--font-family--gothic)",
 			"fontSize": "var(--wp--preset--font-size--medium)",
-			"lineHeight": "2.0",
+			"lineHeight": "1.9",
 			"fontWeight": "400"
 		},
 		"spacing": {
@@ -130,7 +130,7 @@
 					"lineHeight": "1.6"
 				},
 				"spacing": {
-					"margin": { "top": "2.4em", "bottom": "0.9em" }
+					"margin": { "top": "2.6em", "bottom": "1.2em" }
 				}
 			},
 			"h3": {
@@ -141,7 +141,7 @@
 					"lineHeight": "1.7"
 				},
 				"spacing": {
-					"margin": { "top": "1.8em", "bottom": "0.6em" }
+					"margin": { "top": "2.0em", "bottom": "0.85em" }
 				}
 			}
 		},
