@@ -39,8 +39,9 @@
    ページ属性のテンプレートで「ページ（見出しなし）」を選択。
 3. **表示設定**：「設定 → 表示設定」でホームページを最新の投稿のままにすると
    `front-page.html`（ヒーロー＋編集リスト）が出る。
-4. **LINE リンク**：`patterns/line-entry.php` と `templates/single.html` の
-   `href="#"` を実際の LINE URL に差し替え（記事末のみ・トップには置かない）。
+4. **LINE リンク**：設定済み（`https://lin.ee/suwXS66`）。変更する場合は
+   `patterns/line-entry.php` と `templates/single.html` の `href` を差し替え
+   （記事末のみ・トップには置かない）。
 5. **指標は出さない**：いいね・PV・著者名・SNSシェアのプラグインは入れない（仕様 §6）。
 
 ## 記事の書き方
